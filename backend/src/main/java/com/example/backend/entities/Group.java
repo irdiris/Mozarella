@@ -5,7 +5,7 @@ import lombok.Data;
 // these two are called annotations and are used to tell spring that this class should be treated in a certain way
 // For example these two annotations belong to JPA and mean this class represents a table in the DB
 @Entity
-@Table(name = "group")
+@Table(name = "group", schema = "EmployeeManagement")
 // This one is from lombok, and we use it to generate methods for the attributes like getters and setters
 @Data
 public class Group {
