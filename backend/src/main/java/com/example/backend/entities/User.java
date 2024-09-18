@@ -15,8 +15,11 @@ public class User {
     // This one means that we don't input the value for this parameter and is generated automatically
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private String phoneNumber;
     // TODO  fill the rest of the parameters from the diagram we made
     @OneToOne(mappedBy = "user")
     @PrimaryKeyJoinColumn
