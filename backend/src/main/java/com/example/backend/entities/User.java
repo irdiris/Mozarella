@@ -20,7 +20,6 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
-    // TODO  fill the rest of the parameters from the diagram we made
     @OneToOne(mappedBy = "user")
     @PrimaryKeyJoinColumn
     private Manager manager;

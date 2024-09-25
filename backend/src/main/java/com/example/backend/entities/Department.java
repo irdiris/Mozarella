@@ -21,10 +21,15 @@ public class Department {
     private Long id;
     private String name;
     private String description;
+    // this is what in SQL we call a one-to-many relationship, basically one object here (department)  matches multiple objects from the referenced class (user), fetch type is a JPA parameter where we can specify when to get all the data or only the dta we need and get the rest when we access it
     @OneToMany(mappedBy = "department",fetch = FetchType.EAGER)
     private Set<Employee> employees = new HashSet<>();
     @OneToOne
+    // this one is a one to one which means one object here (department) matches one object in the referenced class
     private Manager Manager;
+
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)
+    private Set<Task> tasks = new HashSet<>();
 
 
 
