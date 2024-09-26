@@ -4,11 +4,14 @@ import Dashboard from './components/Dashboard';
 import EmployeeView from './components/EmployeeView';
 import ManagerView from './components/ManagerView';
 import { UserProvider } from './context/UserContext';
+import { LanguageProvider } from './context/LanguageContext';
 import './index.css';
 
 function App() {
   return (
+    
     <UserProvider>
+      <LanguageProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -16,7 +19,9 @@ function App() {
           <Route path="/Manager" element={<ManagerView />} />
         </Routes>
       </Router>
+      </LanguageProvider>
     </UserProvider>
+   
   );
 }
 
