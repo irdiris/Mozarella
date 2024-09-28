@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [activeView, setActiveView] = useState('employees');
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { language } = useLanguage();
+ const { language } = useLanguage();
 
   const handleSearch = (term) => {
     setSearchTerm(term);

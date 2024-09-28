@@ -1,4 +1,4 @@
-// PopupForm.js
+
 import React from 'react';
 
 const PopupForm = ({ isOpen, onClose, title, children }) => {
