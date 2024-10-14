@@ -1,38 +1,54 @@
-
-import React, { useState, useContext } from 'react';
-import { Button } from './ui/Button';
-import { Card, CardHeader, CardContent } from './ui/Card';
-import { UserContext } from '../context/UserContext';
-import { clockIn, clockOut, checkWork, updateInfo, getWorkHistory, getFeedback } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import EmployeeNavbar from './EmployeeNavbar';
+import WorkTodo from './WorkTodo';
+import WorkHistory from './WorkHistory';
+import Feedback from './Feedback';
+import Account from './Account';
+import { useLanguage, text } from '../context/LanguageContext';
+import '../index.css';
+import * as api from '../services/api';
 
 const EmployeeView = () => {
-  const [clockedIn, setClockedIn] = useState(false);
-  const { user } = useContext(UserContext);
+  const [activeView, setActiveView] = useState('account');
+  const [darkMode, setDarkMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { language } = useLanguage();
+  const [tasks, setTasks] = useState([]);
 
-  const handleClockInOut = async () => {
-    if (clockedIn) {
-      await clockOut(user.id);
-    } else {
-      await clockIn(user.id);
-    }
-    setClockedIn(!clockedIn);
+  useEffect(() => {
+    // Fetch tasks data
+    api.fetchTasks()
+      .then(response => setTasks(response.data))
+      .catch(error => console.error('Error fetching tasks:', error));
+  }, []);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
   };
 
-
-
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+  
   return (
-    <Card className="card">
-      <CardHeader className="card-header">Employee Dashboard</CardHeader>
-      <CardContent className="card-content">
-        <Button className="button" onClick={handleClockInOut}>
-          {clockedIn ? 'Clock Out' : 'Clock In'}
-        </Button>
-        <Button className="button" onClick={() => checkWork(user.id)}>Check Work</Button>
-        <Button className="button" onClick={() => updateInfo(user.id)}>Update Information</Button>
-        <Button className="button" onClick={() => getWorkHistory(user.id)}>Work History</Button>
-        <Button className="button" onClick={() => getFeedback(user.id)}>View Feedback</Button>
-      </CardContent>
-    </Card>
+    <div className={`employee-view ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="main-content">
+        <EmployeeNavbar 
+          onSearch={handleSearch} 
+          toggleDarkMode={toggleDarkMode} 
+          darkMode={darkMode}
+          setActiveView={setActiveView}
+          activeView={activeView}
+        />
+        
+        <div className="empcontent-area">
+          {activeView === 'account' && <Account />}
+          {activeView === 'work-todo' && <WorkTodo tasks={tasks} searchTerm={searchTerm} />}
+          {activeView === 'work-history' && <WorkHistory tasks={tasks} searchTerm={searchTerm} />}
+          {activeView === 'feedback' && <Feedback searchTerm={searchTerm} />}
+        </div>
+      </div>
+    </div>
   );
 };
 

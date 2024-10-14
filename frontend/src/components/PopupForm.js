@@ -9,7 +9,9 @@ const PopupForm = ({ isOpen, onClose, title, children }) => {
       <div className="popup-content">
         <h2>{title}</h2>
         <button className="close-button" onClick={onClose}>×</button>
-        {children}
+        <div className="popup-form">
+          {children}
+        </div>
       </div>
     </div>
   );

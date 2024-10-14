@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
-import PopupForm from './PopupForm';  
-import { useLanguage, text } from '../context/LanguageContext';
+import React, { useState, useEffect } from 'react';
+import PopupForm from './PopupForm';
+import * as api from '../services/api';
 
 const EmployeeList = ({ searchTerm }) => {
-  const [employees, setEmployees] = useState([
-    { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@example.com', type: 'manager' },
-    { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', type: 'employee' },
-  ]);
+  const [employees, setEmployees] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupType, setPopupType] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -14,8 +11,25 @@ const EmployeeList = ({ searchTerm }) => {
     firstName: '',
     lastName: '',
     email: '',
-    type: 'employee'
+    password:'',
+    type: 'employee',
+    group:''
   });
+  const [feedbackData, setFeedbackData] = useState('');
+  const [workHistory, setWorkHistory] = useState([]);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await api.fetchEmployees();
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  };
 
   const openPopup = (type, employee = null) => {
     setPopupType(type);
@@ -24,14 +38,16 @@ const EmployeeList = ({ searchTerm }) => {
       setSelectedEmployee(employee);
       setFormData(employee);
     } else {
-      setFormData({ firstName: '', lastName: '', email: '', type: 'employee' });
+      setFormData({ firstName: '', lastName: '', email: '', password: '', type: 'employee', group: '' });
     }
   };
 
   const closePopup = () => {
     setIsPopupOpen(false);
     setSelectedEmployee(null);
-    setFormData({ firstName: '', lastName: '', email: '', type: 'employee' });
+    setFormData({ firstName: '', lastName: '', email: '', password: '', type: 'employee', group: '' });
+    setFeedbackData('');
+    setWorkHistory([]);
   };
 
   const handleInputChange = (e) => {
@@ -39,19 +55,45 @@ const EmployeeList = ({ searchTerm }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (popupType === 'Add') {
-      setEmployees(prev => [...prev, { id: prev.length + 1, ...formData }]);
-    } else if (popupType === 'Modify') {
-      setEmployees(prev => prev.map(emp => emp.id === selectedEmployee.id ? { ...emp, ...formData } : emp));
+    try {
+      if (popupType === 'Add') {
+        await api.addEmployee(formData);
+      } else if (popupType === 'Modify') {
+        await api.updateEmployee(formData);
+      } else if (popupType === 'Feedback') {
+        await api.submitFeedback(selectedEmployee.id, feedbackData);
+      }
+      fetchEmployees();
+      closePopup();
+    } catch (error) {
+      console.error('Error submitting data:', error);
     }
-    closePopup();
   };
 
-  const handleDelete = () => {
-    setEmployees(prev => prev.filter(emp => emp.id !== selectedEmployee.id));
-    closePopup();
+  const handleDelete = async () => {
+    try {
+      await api.deleteEmployee(selectedEmployee.id);
+      fetchEmployees();
+      closePopup();
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+    }
+  };
+
+  const handleFeedbackChange = (e) => {
+    setFeedbackData(e.target.value);
+  };
+
+  const fetchWorkHistory = async (employeeId) => {
+    try {
+      const response = await api.fetchEmployeeWorkHistory(employeeId);
+      setWorkHistory(response.data);
+      openPopup('WorkHistory');
+    } catch (error) {
+      console.error('Error fetching work history:', error);
+    }
   };
 
   const filteredEmployees = employees.filter(employee => 
@@ -70,11 +112,13 @@ const EmployeeList = ({ searchTerm }) => {
           <p>{employee.email}</p>
           <button onClick={() => openPopup('Modify', employee)} className='modif'>Modify</button>
           <button onClick={() => openPopup('Delete', employee)} className='delt'>Delete</button>
+          <button onClick={() => openPopup('Feedback', employee)} className='feedback'>Give Feedback</button>
+          <button onClick={() => fetchWorkHistory(employee.id)} className='history'>Work History</button>
         </div>
       ))}
 
       <PopupForm isOpen={isPopupOpen} onClose={closePopup} title={`${popupType} Employee`}>
-        {popupType !== 'Delete' ? (
+        {popupType === 'Add' || popupType === 'Modify' ? (
           <form onSubmit={handleSubmit}>
             <input className='popinput'
               type="text" 
@@ -100,6 +144,14 @@ const EmployeeList = ({ searchTerm }) => {
               placeholder="Email" 
               required 
             />
+            <input className='popinput'
+              type="password" 
+              name="password" 
+              value={formData.password} 
+              onChange={handleInputChange} 
+              placeholder="Password" 
+              required 
+            />
             <select className='popselect'
               name="type" 
               value={formData.type} 
@@ -109,15 +161,46 @@ const EmployeeList = ({ searchTerm }) => {
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
             </select>
+            <input className='popinput'
+              type="text" 
+              name="group" 
+              value={formData.group} 
+              onChange={handleInputChange} 
+              placeholder="Group" 
+              required 
+            />
             <button className='popbutton' type="submit">Submit</button>
           </form>
-        ) : (
+        ) : popupType === 'Delete' ? (
           <div>
             <p>Are you sure you want to delete {selectedEmployee?.firstName} {selectedEmployee?.lastName}?</p>
             <button className='popdelet' onClick={handleDelete}>Yes, Delete</button>
             <button className='popcancel' onClick={closePopup}>Cancel</button>
           </div>
-        )}
+        ) : popupType === 'Feedback' ? (
+          <form onSubmit={handleSubmit}>
+            <textarea
+              className='popinput'
+              name="feedback"
+              value={feedbackData}
+              onChange={handleFeedbackChange}
+              placeholder="Enter feedback"
+              required
+            />
+            <button className='popbutton' type="submit">Submit Feedback</button>
+          </form>
+        ) : popupType === 'WorkHistory' ? (
+          <div>
+            <h3>Work History for {selectedEmployee?.firstName} {selectedEmployee?.lastName}</h3>
+            {workHistory.map((entry, index) => (
+              <div key={index}>
+                <p>Date: {entry.date}</p>
+                <p>Task: {entry.task}</p>
+                <p>Status: {entry.status}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </PopupForm>
     </div>
   );

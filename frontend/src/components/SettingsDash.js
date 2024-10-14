@@ -58,85 +58,11 @@ const Settings = () => {
   return (
     <div className="settings-page">
       <h2>{text[language].settings}</h2>
-      <div className="settings-nav">
-        <button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}>{text[language].accountSettings}</button>
-        <button onClick={() => setActiveTab('language')} className={activeTab === 'language' ? 'active' : ''}>{text[language].languageSettings}</button>
-        <button onClick={() => setActiveTab('users')} className={activeTab === 'users' ? 'active' : ''}>{text[language].userManagement}</button>
-      </div>
+    
 
       <div className="settings-content">
-        {activeTab === 'account' && (
-          <div className="account-settings">
-            <h3>{text[language].accountSettings}</h3>
-            <form onSubmit={handleAccountUpdate}>
-              <div className="form-group">
-                <label htmlFor="username">{text[language].username}:</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={currentUser.username}
-                  onChange={(e) => setCurrentUser({...currentUser, username: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">{text[language].email}:</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={currentUser.email}
-                  onChange={(e) => setCurrentUser({...currentUser, email: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="orgName">{text[language].organizationName}:</label>
-                <input
-                  type="text"
-                  id="orgName"
-                  value={currentUser.organizationName}
-                  onChange={(e) => setCurrentUser({...currentUser, organizationName: e.target.value})}
-                />
-              </div>
-              <button type="submit" className="newEmp">{text[language].updateAccount}</button>
-            </form>
 
-            <h3>{text[language].changePassword}</h3>
-            <form onSubmit={handlePasswordChange}>
-              <div className="form-group">
-                <label htmlFor="currentPassword">{text[language].currentPassword}:</label>
-                <input type="password" id="currentPassword" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="newPassword">{text[language].newPassword}:</label>
-                <input type="password" id="newPassword" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="confirmPassword">{text[language].confirmNewPassword}:</label>
-                <input type="password" id="confirmPassword" />
-              </div>
-              <button type="submit" className="newEmp">{text[language].changePassword}</button>
-            </form>
-          </div>
-        )}
-
-        {activeTab === 'language' && (
-          <div className="language-settings">
-            <h3>{text[language].languageSettings}</h3>
-            <div className="form-group">
-              <label htmlFor="language">{text[language].selectLanguage}:</label>
-              <select
-                id="language"
-                value={language}
-                onChange={toggleLanguage}
-                className="popselect"
-              >
-                <option value="en">{text[language].english}</option>
-                <option value="fr">{text[language].french}</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'users' && (
+        
           <div className="user-management">
             <h3>{text[language].userManagement}</h3>
             <button onClick={openPopup} className="newEmp">{text[language].createNewAccount}</button>
@@ -172,7 +98,7 @@ const Settings = () => {
               </tbody>
             </table>
           </div>
-        )}
+      
       </div>
 
       <PopupForm isOpen={isPopupOpen} onClose={closePopup} title={text[language].createNewAccount}>
