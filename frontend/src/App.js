@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Dashboard from './components/ManagerView';
@@ -39,3 +40,4 @@ function App() {
 }
 
 export default App;
+
